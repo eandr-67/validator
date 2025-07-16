@@ -12,9 +12,14 @@ type Build struct {
 	formats []string
 }
 
-func (build *Build) Validator() validator.Validator {
-	if len(build.formats) == 0 {
+func (b *Build) Validator() validator.Validator {
+	if len(b.formats) == 0 {
 		panic(errors.New("formats cannot be empty"))
 	}
-	return validator.NewSimple[time.Time](convertTime(build.formats), build.Rules)
+	return validator.NewSimple[time.Time](convertTime(b.formats), b.Rules)
+}
+
+func (b *Build) Append(rules ...validator.Action[time.Time]) *Build {
+	b.Rules.Append(rules...)
+	return b
 }

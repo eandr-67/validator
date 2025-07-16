@@ -9,22 +9,33 @@
 
 ## Пример использования
 
-Вадидатор создаётся один раз при запуске сервиса:
+Вадидатор создаётся один раз при запуске программы и дальше используется по мере надобности.
 
 ```go
-package demo
+package main
 
 import (
-	"github.com/eandr-67/errs"
+	"fmt"
+
 	v "github.com/eandr-67/validator"
 	o "github.com/eandr-67/validator/object"
 )
 
-var VL = o.Obj(v.NotNull[map[string]any], o.Required("aaa")).
-	Add("aaa", v.Int(v.Null[int64], v.Gt(25), v.Le(50))).
-	Add("bbb", v.String(v.NotNull[string], v.Regex("^\\d{5}$"))).
-	After(o.Default("12345")).
+// Создание валидатора
+var VL = o.Obj(v.NotNull, o.Required("aaa"), o.Default("bbb", "12345")).
+	Add("aaa", v.Int(v.Null, v.Gt[int64](25), v.Le[int64](50))).
+	Add("bbb", v.String(v.NotNull, v.Regex("^\\d{5}$"))).
 	Validator()
+
+func main() { // Примеры использования
+	res, err := VL.Do(nil)
+	fmt.Printf("%#v\n%#v\n\n", res, err)
+	res, err = VL.Do(map[string]any{})
+	fmt.Printf("%#v\n%#v\n\n", res, err)
+	res, err = VL.Do(map[string]any{"aaa": 10.0, "bbb": "98765"})
+	fmt.Printf("%#v\n%#v\n\n", res, err)
+}
+
 ```
 
 В данном случае в переменную VL записывается валидатор, требующий JSON-объект вида:
@@ -41,45 +52,6 @@ var VL = o.Obj(v.NotNull[map[string]any], o.Required("aaa")).
 Поле `bbb` опционально.
 Если оно задано, то должно быть строкой, содержащей 5 цифр.
 Если не задано, поле `bbb` создаётся со значением "12345".
-
-Разобранный запрос можно, например, отправить в контекст через middleware (вариант для chi):
-
-```go
-package demo
-
-import (
-	"context"
-	"encoding/json"
-	"net/http"
-
-	"github.com/eandr-67/validator"
-)
-
-func middleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			defer func() { _ = r.Body.Close() }()
-			params, errs := validator.Parse(r.Body, VL) // Разбор тела запроса и применение к нему валидатора
-			if len(errs) == 0 {                         // Ошибок нет, продолжаем работу конвейера
-				next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), "params", params)))
-			} else { // Останавливаем обработку и возвращаем ответ с информацией об ошибках
-				w.WriteHeader(http.StatusBadRequest)
-				_ = json.NewEncoder(w).Encode(errs)
-			}
-		},
-	)
-}
-
-```
-
-И использовать где-то в других middleware:
-
-```go
-a := r.Context("params")["aaa"].(int64) // Вот так получаем значение поля "aaa"
-```
-
-*N.B. Ни в коем случае не используйте эти образцы говнокода в реальном проекте - они нужны только для демонстрации
-идеи.*
 
 ## Зачем???
 
@@ -311,4 +283,53 @@ func ParseString(str string, validator Validator) (map[string]any, e.Errors)
 
 Аналогично, но вместо потока ввода передаётся строка, содержащая JSON.
 
-# Подпакет Array
+## Подпакет Time
+
+Реализует автоматическое преобразование строки в значение `time.Time`.
+Т.к. тип `Time` фактически не является comparable и при этом реализует ordered посредством своих методов,
+то для `Time` пришлось создать свой набор действий, используемых только с этим типом.
+Что, собственно, и стало причиной выноса этого типа в отдельный пакет.
+
+Но главная проблема `Time` не в сравнении значений, а в том самом преобразовании строки в `Time`.
+Если API принимает дату / время в единственном жёстко заданном формате, сложностей не возникает.
+На такое возможно далеко не всегда и надо предусмотреть обработку разных форматов.
+Так что валидатору должен передаваться набор форматов, допустимых для данного значения.
+Кроме того, должна быть возможность установки часового пояса по умолчанию - глобальная, действующая на все валидаторы.
+
+### Список действий подпакета Time
+
+| Действие | Тип значения | Параметры    | Тип ошибки     | Описание (псевдокод) |
+|----------|--------------|--------------|----------------|----------------------|
+| Eq       | time.Time    | time.Time    | ValueIncorrect | `*elem == par`       |
+| Ne       | time.Time    | time.Time    | ValueIncorrect | `*elem != par`       |
+| In       | time.Time    | ...time.Time | ValueIncorrect | `*elem in par`       |
+| NotIn    | time.Time    | ...time.Time | ValueIncorrect | `*elem not in par`   |
+| Lt       | time.Time    | time.Time    | ValueIncorrect | `*elem < par`        |
+| Le       | time.Time    | time.Time    | ValueIncorrect | `*elem <= par`       |
+| Gt       | time.Time    | time.Time    | ValueIncorrect | `*elem > par`        |
+| Ge       | time.Time    | time.Time    | ValueIncorrect | `*elem >= par`       |
+
+### Построитель Time
+
+Построитель `Time` создаётся генератором:
+
+```go
+func Time(formats []string, rules ...validator.Action[time.Time]) *Build
+```
+
+Первым параметром передаётся массив форматов даты/времени.
+Если массив пуст, генерируется паника, содержащая строку "formats cannot be empty".
+
+В остальном работа с построителем ничем не отличается от работы с построителями базового пакета.
+
+Глобальная переменная `Default` пакета содержит набор готовых форматов - вероятно, не самый оптимальный.
+
+### Часовой пояс
+
+Установка часового пояса производится вызовом функции:
+
+```go
+func SetTimeZone(tz *time.Location)
+```
+
+По умолчанию выставлен часовой пояс `time.UTC`.
