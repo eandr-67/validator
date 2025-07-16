@@ -12,7 +12,7 @@ func (h *handle) Handle(data *map[string]any, err *errs.Errors) *map[string]any 
 	for key, value := range *data {
 		if vl, ok := (*h)[key]; !ok {
 			err.Add("."+key, validator.ErrMsg[validator.CodeKeyUnknown])
-		} else if (*data)[key], msg = vl.Do(&value); len(*msg) != 0 {
+		} else if (*data)[key], msg = vl.Do(value); len(*msg) != 0 {
 			err.AddErrors("."+key, *msg)
 		}
 	}
