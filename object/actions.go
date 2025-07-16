@@ -29,7 +29,7 @@ func Required(fields ...string) validator.Action[map[string]any] {
 	return func(val *map[string]any, key string, err *errs.Errors) (*map[string]any, bool) {
 		for _, field := range fields {
 			if _, ok := (*val)[field]; !ok {
-				err.Add("."+key, validator.ErrMsg[validator.CodeKeyMissed])
+				err.Add(key+"."+field, validator.ErrMsg[validator.CodeKeyMissed])
 			}
 		}
 		return val, true
