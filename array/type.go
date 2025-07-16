@@ -6,12 +6,12 @@ import (
 	"github.com/eandr-67/validator"
 )
 
-func Arr(cell validator.Builder, rules ...validator.Action[[]any]) *Build {
+func Arr(cell validator.Builder, before ...validator.Action[[]any]) *Build {
 	if cell == nil {
 		panic(errors.New("cell cannot be nil"))
 	}
 	return &Build{
-		before: rules,
+		before: before,
 		after:  validator.Rules[[]any]{},
 		cell:   cell,
 	}
