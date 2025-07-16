@@ -1,5 +1,9 @@
 package validator
 
+import (
+	"fmt"
+)
+
 type Converter[T any] func(raw any) (*T, *string)
 
 // Convert базовый преобразователь, используемый для типов данных, автоматически декодируемых из JSON в Go any.
@@ -7,6 +11,10 @@ func Convert[T any](raw any) (*T, *string) {
 	if raw == nil {
 		return nil, nil
 	}
+
+	var tmp T
+	fmt.Printf("%T %T\n", tmp, raw)
+
 	if v, ok := raw.(T); ok {
 		return &v, nil
 	} else {
