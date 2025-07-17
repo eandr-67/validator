@@ -210,6 +210,20 @@ func TestAction_Regex(t *testing.T) {
 	}
 }
 
+func TestAction_In_Empty(t *testing.T) {
+	testIn(t, In[int], "In")
+	testIn(t, NotIn[int], "NotIn")
+	testIn(t, LenIn, "LenIn")
+	testIn(t, LenNotIn, "LenNotIn")
+}
+
+func TestAction_Len_Negative(t *testing.T) {
+	testLen(t, LenEq, "LenEq")
+	testLen(t, LenNe, "LenNe")
+	testLen(t, LenGe, "LenGe")
+	testLen(t, LenLe, "LenLe")
+}
+
 func checkError(t *testing.T, err errs.Errors, key string, val []string) {
 	if err == nil {
 		t.Error("err should not be nil")
@@ -222,4 +236,30 @@ func checkError(t *testing.T, err errs.Errors, key string, val []string) {
 	} else if !slices.Equal(v, val) {
 		t.Errorf("err[%s] must be %#v, got %#v", key, val, v)
 	}
+}
+
+func testIn[Q any](t *testing.T, f func(values ...int) Action[Q], name string) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("%s: there should be panic", name)
+		} else if v, ok := r.(error); !ok {
+			t.Errorf("%s: there must be error", name)
+		} else if v.Error() != "must have at least one value" {
+			t.Errorf(`%s: error message must be "must have at least one value", got "%s"`, name, v.Error())
+		}
+	}()
+	_ = f()
+}
+
+func testLen(t *testing.T, f func(value int) Action[string], name string) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("%s: there should be panic", name)
+		} else if v, ok := r.(error); !ok {
+			t.Errorf("%s: there must be error", name)
+		} else if v.Error() != "the value must be not less than 0" {
+			t.Errorf(`%s: error message must be "the value must be not less than 0", got "%s"`, name, v.Error())
+		}
+	}()
+	_ = f(-1)
 }
