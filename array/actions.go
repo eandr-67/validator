@@ -32,7 +32,7 @@ func LenNe(value int) validator.Action[[]any] {
 // LenGe проверяет, что длина массива больше или равна заданной.
 func LenGe(value int) validator.Action[[]any] {
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) > value {
+		if len(*val) >= value {
 			return val, true
 		}
 		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
@@ -43,7 +43,7 @@ func LenGe(value int) validator.Action[[]any] {
 // LenLe проверяет, что длина массива меньше или равна заданной.
 func LenLe(value int) validator.Action[[]any] {
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) < value {
+		if len(*val) <= value {
 			return val, true
 		}
 		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
