@@ -1,6 +1,7 @@
 package array
 
 import (
+	"errors"
 	"slices"
 
 	"github.com/eandr-67/errs"
@@ -9,6 +10,9 @@ import (
 
 // LenEq проверяет, что длина массива больше или равна заданной.
 func LenEq(value int) validator.Action[[]any] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if len(*val) == value {
 			return val, true
@@ -20,6 +24,9 @@ func LenEq(value int) validator.Action[[]any] {
 
 // LenNe проверяет, что длина массива меньше или равна заданной.
 func LenNe(value int) validator.Action[[]any] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if len(*val) != value {
 			return val, true
@@ -31,6 +38,9 @@ func LenNe(value int) validator.Action[[]any] {
 
 // LenGe проверяет, что длина массива больше или равна заданной.
 func LenGe(value int) validator.Action[[]any] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if len(*val) >= value {
 			return val, true
@@ -42,6 +52,9 @@ func LenGe(value int) validator.Action[[]any] {
 
 // LenLe проверяет, что длина массива меньше или равна заданной.
 func LenLe(value int) validator.Action[[]any] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if len(*val) <= value {
 			return val, true
@@ -53,6 +66,9 @@ func LenLe(value int) validator.Action[[]any] {
 
 // LenIn проверяет, что длина массива входит в заданный список.
 func LenIn(values ...int) validator.Action[[]any] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if slices.Contains(values, len(*val)) {
 			return val, true
@@ -64,6 +80,9 @@ func LenIn(values ...int) validator.Action[[]any] {
 
 // LenNotIn проверяет, что длина массива не входит в заданный список.
 func LenNotIn(values ...int) validator.Action[[]any] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
 		if !slices.Contains(values, len(*val)) {
 			return val, true

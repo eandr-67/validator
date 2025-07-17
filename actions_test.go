@@ -143,6 +143,8 @@ func TestAction_Length(t *testing.T) {
 		op  Action[string]
 		res [3]bool
 	}{
+		"LenEq":    {LenEq(2), [3]bool{false, true, false}},
+		"LenNe":    {LenNe(2), [3]bool{true, false, true}},
 		"LenLe":    {LenLe(2), [3]bool{true, true, false}},
 		"LenGe":    {LenGe(2), [3]bool{false, true, true}},
 		"LenIn":    {LenIn(1, 2), [3]bool{true, true, false}},

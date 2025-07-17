@@ -31,3 +31,13 @@ func TestBool(t *testing.T) {
 		t.Errorf("Rule length should be 2")
 	}
 }
+
+func TestEmpty(t *testing.T) {
+	b := Bool()
+	if b.Rules == nil {
+		t.Errorf("Rules should not be nil")
+	}
+	if len(b.Rules) != 0 {
+		t.Errorf("Rule length should be 0")
+	}
+}

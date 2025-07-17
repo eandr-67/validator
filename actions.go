@@ -2,6 +2,7 @@ package validator
 
 import (
 	"cmp"
+	"errors"
 	"regexp"
 	"slices"
 
@@ -69,6 +70,9 @@ func Ne[T comparable](value T) Action[T] {
 // In Применяется только к типам, для которых определены операции == и !=.
 // Проверяет, что валидируемое значение входит в заданный список.
 func In[T comparable](values ...T) Action[T] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(elem *T, key string, err *errs.Errors) (*T, bool) {
 		if slices.Contains(values, *elem) {
 			return elem, true
@@ -81,6 +85,9 @@ func In[T comparable](values ...T) Action[T] {
 // NotIn Применяется только к типам, для которых определены операции == и !=.
 // Проверяет, что валидируемое значение не входит в заданный список.
 func NotIn[T comparable](values ...T) Action[T] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(elem *T, key string, err *errs.Errors) (*T, bool) {
 		if !slices.Contains(values, *elem) {
 			return elem, true
@@ -162,8 +169,39 @@ func NotRegex(pattern string) Action[string] {
 	}
 }
 
+// LenEq применяется только к строкам. Проверяет, что длина строки равна заданной.
+func LenEq(value int) Action[string] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
+	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
+		if len(*elem) == value {
+			return elem, true
+		}
+		err.Add(key, ErrMsg[CodeLengthIncorrect])
+		return elem, false
+	}
+}
+
+// LenNe применяется только к строкам. Проверяет, что длина строки не равна заданной.
+func LenNe(value int) Action[string] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
+	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
+		if len(*elem) != value {
+			return elem, true
+		}
+		err.Add(key, ErrMsg[CodeLengthIncorrect])
+		return elem, false
+	}
+}
+
 // LenGe применяется только к строкам. Проверяет, что длина строки больше или равна заданной.
 func LenGe(value int) Action[string] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
 		if len(*elem) >= value {
 			return elem, true
@@ -175,6 +213,9 @@ func LenGe(value int) Action[string] {
 
 // LenLe применяется только к строкам. Проверяет, что длина строки меньше или равна заданной.
 func LenLe(value int) Action[string] {
+	if value < 0 {
+		panic(errors.New("the value must be not less than 0"))
+	}
 	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
 		if len(*elem) <= value {
 			return elem, true
@@ -186,6 +227,9 @@ func LenLe(value int) Action[string] {
 
 // LenIn применяется только к строкам. Проверяет, что длина проверяемой строки входит в заданный список.
 func LenIn(values ...int) Action[string] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
 		if slices.Contains(values, len(*elem)) {
 			return elem, true
@@ -197,6 +241,9 @@ func LenIn(values ...int) Action[string] {
 
 // LenNotIn применяется только к строкам. Проверяет, что длина проверяемой строки не входит в заданный список.
 func LenNotIn(values ...int) Action[string] {
+	if len(values) == 0 {
+		panic(errors.New("must have at least one value"))
+	}
 	return func(elem *string, key string, err *errs.Errors) (*string, bool) {
 		if !slices.Contains(values, len(*elem)) {
 			return elem, true
