@@ -22,14 +22,14 @@ func (b *Build) Validator() validator.Validator {
 	return validator.NewFull[map[string]any](validator.Convert[map[string]any], b.before, b.after, &h)
 }
 
-func (b *Build) Add(key string, build validator.Builder) *Build {
+func (b *Build) Add(field string, build validator.Builder) *Build {
 	if build == nil {
 		panic(errors.New("build cannot be nil"))
 	}
-	if _, ok := b.fields[key]; ok {
+	if _, ok := b.fields[field]; ok {
 		panic(errors.New("field is duplicated"))
 	}
-	b.fields[key] = build
+	b.fields[field] = build
 	return b
 }
 

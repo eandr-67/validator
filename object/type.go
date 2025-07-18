@@ -2,9 +2,12 @@ package object
 
 import "github.com/eandr-67/validator"
 
-func Obj(rules ...validator.Action[map[string]any]) *Build {
+func Obj(before ...validator.Action[map[string]any]) *Build {
+	if before == nil {
+		before = []validator.Action[map[string]any]{}
+	}
 	return &Build{
-		before: rules,
+		before: before,
 		after:  validator.Rules[map[string]any]{},
 		fields: map[string]validator.Builder{},
 	}
