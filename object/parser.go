@@ -24,14 +24,14 @@ func Parse(reader io.Reader, validator v.Validator) (result map[string]any, err 
 // ParseString декодирует строку, содержащую JSON, в map[string]any и обрабатывает этот any валидатором.
 // Возвращает результат обработки и список ошибок.
 // Синтаксический сахар для того, чтобы не загромождать код API.
-func ParseString(str string, validator v.Validator) (result any, err *errs.Errors) {
+func ParseString(str string, validator v.Validator) (result map[string]any, err *errs.Errors) {
 	var data any
 	if json.Unmarshal([]byte(str), &data) != nil {
 		err = &errs.Errors{}
 		err.Add("", v.ErrMsg[v.CodeFormatIncorrect])
 		return nil, err
 	}
-	return validator.Do(data)
+	return anyToMap(validator.Do(data))
 }
 
 // anyToMap конкретизирует any в map[string]any.
