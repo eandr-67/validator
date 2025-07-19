@@ -2,6 +2,7 @@ package time
 
 import "time"
 
+// Default готовый набор форматов - просто для удобства.
 var Default = []string{
 	"2006-01-02T15:04:05.999999999",
 	"2006-01-02 15:04:05.999999999",
@@ -14,8 +15,10 @@ var Default = []string{
 	"2006-01-02Z07",
 }
 
+// timeZode - часовой пояс по умолчанию.
 var timeZone = time.UTC
 
+// SetTimeZone устанавливает часовой пояс по умолчанию.
 func SetTimeZone(tz *time.Location) {
 	timeZone = tz
 }
