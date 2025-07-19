@@ -290,28 +290,6 @@ vl = func v.String().Append(v.NotNull, LenEq(5)).Validator()
 vl = func v.String(v.NotNull).Append(LenEq(5)).Validator()
 ```
 
-## Немного синтаксического сахара
-
-В дополнение к собственно валидатору, базовый пакет имеет две функции, производящие декодирование JSON и валидацию
-результата. В отличие от самого валидатора, эти функции предполагают, что им передаётся объект JSON и возвращают
-данные типа `map[string]any`.
-
-Обработка потока ввода:
-
-```go
-func Parse(reader io.Reader, validator Validator) (map[string]any, e.Errors)
-```
-
-Получает на вход поток ввода и валидатор. Возвращает обработанные данные и список ошибок.
-
-Обработка строки:
-
-```go
-func ParseString(str string, validator Validator) (map[string]any, e.Errors)
-```
-
-Аналогично, но вместо потока ввода передаётся строка, содержащая JSON.
-
 ## Подпакет `validator/time`
 
 Реализует автоматическое преобразование строки в значение `time.Time`.
@@ -450,3 +428,21 @@ func (b *Build) AddMap(fields map[string]validator.Builder) *Build
 
 Добавляет группу полей с именами - ключами `fields` и построителями - значениями `fields`.
 
+### Немного синтаксического сахара
+
+Т.к. в типовом JSON API на вход подаётся объект, то в пакет добавлены две функции, которые производят разбор потока
+ввода или строки, содержащих объект JSON сразу в `map[string]any` без дополнительных ручных преобразований.
+
+Обработка потока ввода:
+
+```go
+func Parse(reader io.Reader, validator validator.Validator) (map[string]any, e.Errors)
+```
+
+Получает на вход поток ввода и валидатор. Возвращает обработанные данные и список ошибок.
+
+Обработка строки:
+
+```go
+func ParseString(str string, validator validator.Validator) (map[string]any, e.Errors)
+```

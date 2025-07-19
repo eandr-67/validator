@@ -23,9 +23,6 @@ func (b *Build) Validator() validator.Validator {
 }
 
 func (b *Build) Add(field string, build validator.Builder) *Build {
-	if build == nil {
-		panic(errors.New("build cannot be nil"))
-	}
 	if _, ok := b.fields[field]; ok {
 		panic(errors.New("field is duplicated"))
 	}
