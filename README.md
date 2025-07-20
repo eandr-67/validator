@@ -17,23 +17,23 @@ package main
 import (
 	"fmt"
 
-	v "github.com/eandr-67/validator"
+	name "github.com/eandr-67/validator"
 	o "github.com/eandr-67/validator/object"
 )
 
 // Создание валидатора
-var VL = o.Obj(v.NotNull, o.Required("aaa"), o.Default("bbb", "12345")).
-	Add("aaa", v.Int(v.Null, v.Gt[int64](25), v.Le[int64](50))).
-	Add("bbb", v.String(v.NotNull, v.Regex("^\\d{5}$"))).
+var VL = o.Obj(name.NotNull, o.Required("aaa"), o.Default("bbb", "12345")).
+	Add("aaa", name.Int(name.Null, name.Gt[int64](25), name.Le[int64](50))).
+	Add("bbb", name.String(name.NotNull, name.Regex("^\\d{5}$"))).
 	Validator()
 
 func main() { // Примеры использования
 	res, err := VL.Do(nil)
-	fmt.Printf("%#v\n%#v\n\n", res, err)
+	fmt.Printf("%#name\n%#name\n\n", res, err)
 	res, err = VL.Do(map[string]any{})
-	fmt.Printf("%#v\n%#v\n\n", res, err)
+	fmt.Printf("%#name\n%#name\n\n", res, err)
 	res, err = VL.Do(map[string]any{"aaa": 10.0, "bbb": "98765"})
-	fmt.Printf("%#v\n%#v\n\n", res, err)
+	fmt.Printf("%#name\n%#name\n\n", res, err)
 }
 
 ```
@@ -155,7 +155,7 @@ type Validator interface { Do(any) (any, *errs.Errors) }
 | TypeIncorrect   | CodeTypeIncorrect   | 0      | type    | Ошибочный тип проверяемого значения                               |
 | FormatIncorrect | CodeFormatIncorrect | 1      | format  | Ошибочный формат строки: проверяемого значения или исходного JSON |
 | LengthIncorrect | CodeLengthIncorrect | 2      | length  | Ошибочная длина проверяемых строки или массива                    |
-| ValueIncorrect  | CodeValueIncorrect  | 3      | value   | Значение не соответствует заданным правилам                       |
+| ValueIncorrect  | CodeValueIncorrect  | 3      | replace   | Значение не соответствует заданным правилам                       |
 | ValueIsNull     | CodeValueIsNull     | 4      | is_null | Недопустимое значение `nil` (`null`)                              |
 | KeyMissed       | CodeKeyMissed       | 5      | missed  | В объекте отсутствует обязательное поле                           |
 | KeyUnknown      | CodeKeyUnknown      | 6      | unknown | В объекте присутствует поле, неизвестное валидатору               |
@@ -188,7 +188,7 @@ type Validator interface { Do(any) (any, *errs.Errors) }
 , то список ошибок будет иметь вид:
 
 ```go
-map[string][]sting{".paginator.size": ["value"], ".field[2]": ["is_null"]}
+map[string][]sting{".paginator.size": ["replace"], ".field[2]": ["is_null"]}
 ```
 
 ## Действие (Action)
@@ -201,10 +201,10 @@ map[string][]sting{".paginator.size": ["value"], ".field[2]": ["is_null"]}
 Описывается типом:
 
 ```go
-type Action[T any] func (elem *T, field string, err *e.Errors) (*T, bool)
+type Action[T any] func (replace *T, field string, err *e.Errors) (*T, bool)
 ```
 
-Действие получает на вход указатель на значение `elem` и возвращает
+Действие получает на вход указатель на значение `replace` и возвращает
 указатель на результат применения действия и флаг продолжения
 процесса проверки - уже с новым возвращённым значением. Если
 действие завершилось ошибкой (значение не соответствует заданному
@@ -228,30 +228,30 @@ Action, проверяющее соответствие действия зад�
 
 Если это действие, а не генератор, в графе "Параметры" стоит прочерк.
 Если действие не может вернуть ошибку, в графе "Ошибка стоит пропуск".
-В описании параметр генератора обозначается именем par, а проверяемое значение именем elem.
+В описании параметр генератора обозначается именем par, а проверяемое значение именем replace.
 Именем T обозначен тип проверяемого значения.
 
 | Действие | Тип значения | Параметры | Тип ошибки      | Описание (псевдокод)                                 |
 |----------|--------------|-----------|-----------------|------------------------------------------------------|
-| Null     | any          | -         | -               | Остановка проверки, если `elem == nil`               |
-| NotNull  | any          | -         | ValueIsNull     | Ошибка, если `elem == nil`                           |
-| IfNull   | any          | T         | -               | Подстановка par как значения, если `elem == nil`     |
-| Eq       | comparable   | T         | ValueIncorrect  | `*elem == par`                                       |
-| Ne       | comparable   | T         | ValueIncorrect  | `*elem != par`                                       |
-| In       | comparable   | ...T      | ValueIncorrect  | `*elem in par` (присутствует в списке параметров)    |
-| NotIn    | comparable   | ...T      | ValueIncorrect  | `*elem not in par` (отсутствует в списке параметров) |
-| Lt       | ordered      | T         | ValueIncorrect  | `*elem < par`                                        |
-| Le       | ordered      | T         | ValueIncorrect  | `*elem <= par`                                       |
-| Gt       | ordered      | T         | ValueIncorrect  | `*elem > par`                                        |
-| Ge       | ordered      | T         | ValueIncorrect  | `*elem >= par`                                       |
-| Regex    | string       | string    | FormatIncorrect | `regexp(par).test(*elem)`                            |
-| NotRegex | string       | string    | FormatIncorrect | `! regexp(par).test(*elem)`                          |
-| LenEq    | string       | int       | LengthIncorrect | `len(*elem) == par`                                  |
-| LenNe    | string       | int       | LengthIncorrect | `len(*elem) != par`                                  |
-| LenGe    | string       | int       | LengthIncorrect | `len(*elem) >= par`                                  |
-| LenLe    | string       | int       | LengthIncorrect | `len(*elem) <= par`                                  |
-| LenIn    | string       | ...int    | LengthIncorrect | `len(*elem) in par`                                  |
-| LenNotIn | string       | ...int    | LengthIncorrect | `len(*elem) not in par`                              |
+| Null     | any          | -         | -               | Остановка проверки, если `replace == nil`               |
+| NotNull  | any          | -         | ValueIsNull     | Ошибка, если `replace == nil`                           |
+| IfNull   | any          | T         | -               | Подстановка par как значения, если `replace == nil`     |
+| Eq       | comparable   | T         | ValueIncorrect  | `*replace == par`                                       |
+| Ne       | comparable   | T         | ValueIncorrect  | `*replace != par`                                       |
+| In       | comparable   | ...T      | ValueIncorrect  | `*replace in par` (присутствует в списке параметров)    |
+| NotIn    | comparable   | ...T      | ValueIncorrect  | `*replace not in par` (отсутствует в списке параметров) |
+| Lt       | ordered      | T         | ValueIncorrect  | `*replace < par`                                        |
+| Le       | ordered      | T         | ValueIncorrect  | `*replace <= par`                                       |
+| Gt       | ordered      | T         | ValueIncorrect  | `*replace > par`                                        |
+| Ge       | ordered      | T         | ValueIncorrect  | `*replace >= par`                                       |
+| Regex    | string       | string    | FormatIncorrect | `regexp(par).test(*replace)`                            |
+| NotRegex | string       | string    | FormatIncorrect | `! regexp(par).test(*replace)`                          |
+| LenEq    | string       | int       | LengthIncorrect | `len(*replace) == par`                                  |
+| LenNe    | string       | int       | LengthIncorrect | `len(*replace) != par`                                  |
+| LenGe    | string       | int       | LengthIncorrect | `len(*replace) >= par`                                  |
+| LenLe    | string       | int       | LengthIncorrect | `len(*replace) <= par`                                  |
+| LenIn    | string       | ...int    | LengthIncorrect | `len(*replace) in par`                                  |
+| LenNotIn | string       | ...int    | LengthIncorrect | `len(*replace) not in par`                              |
 
 ## Построитель (Builder)
 
@@ -285,9 +285,9 @@ func (b *Build[T]) Append(before ...Action[T]) *Build[T]
 Так что нижеперечисленные варианты создания валидатора с двумя действиями эквивалентны:
 
 ```go
-vl = func v.String(v.NotNull, LenEq(5)).Validator()
-vl = func v.String().Append(v.NotNull, LenEq(5)).Validator()
-vl = func v.String(v.NotNull).Append(LenEq(5)).Validator()
+vl = func name.String(name.NotNull, LenEq(5)).Validator()
+vl = func name.String().Append(name.NotNull, LenEq(5)).Validator()
+vl = func name.String(name.NotNull).Append(LenEq(5)).Validator()
 ```
 
 ## Подпакет `validator/time`
@@ -307,14 +307,14 @@ vl = func v.String(v.NotNull).Append(LenEq(5)).Validator()
 
 | Действие | Тип значения | Параметры    | Тип ошибки     | Описание (псевдокод) |
 |----------|--------------|--------------|----------------|----------------------|
-| Eq       | time.Time    | time.Time    | ValueIncorrect | `*elem == par`       |
-| Ne       | time.Time    | time.Time    | ValueIncorrect | `*elem != par`       |
-| In       | time.Time    | ...time.Time | ValueIncorrect | `*elem in par`       |
-| NotIn    | time.Time    | ...time.Time | ValueIncorrect | `*elem not in par`   |
-| Lt       | time.Time    | time.Time    | ValueIncorrect | `*elem < par`        |
-| Le       | time.Time    | time.Time    | ValueIncorrect | `*elem <= par`       |
-| Gt       | time.Time    | time.Time    | ValueIncorrect | `*elem > par`        |
-| Ge       | time.Time    | time.Time    | ValueIncorrect | `*elem >= par`       |
+| Eq       | time.Time    | time.Time    | ValueIncorrect | `*replace == par`       |
+| Ne       | time.Time    | time.Time    | ValueIncorrect | `*replace != par`       |
+| In       | time.Time    | ...time.Time | ValueIncorrect | `*replace in par`       |
+| NotIn    | time.Time    | ...time.Time | ValueIncorrect | `*replace not in par`   |
+| Lt       | time.Time    | time.Time    | ValueIncorrect | `*replace < par`        |
+| Le       | time.Time    | time.Time    | ValueIncorrect | `*replace <= par`       |
+| Gt       | time.Time    | time.Time    | ValueIncorrect | `*replace > par`        |
+| Ge       | time.Time    | time.Time    | ValueIncorrect | `*replace >= par`       |
 
 ### Построитель валидатора
 
@@ -368,12 +368,12 @@ func SetTimeZone(tz *time.Location)
 
 | Действие | Тип значения | Параметры | Тип ошибки      | Описание (псевдокод)    |
 |----------|--------------|-----------|-----------------|-------------------------|
-| LenEq    | []any        | int       | LengthIncorrect | `len(*elem) == par`     |
-| LenNe    | []any        | int       | LengthIncorrect | `len(*elem) != par`     |
-| LenGe    | []any        | int       | LengthIncorrect | `len(*elem) >= par`     |
-| LenLe    | []any        | int       | LengthIncorrect | `len(*elem) <= par`     |
-| LenIn    | []any        | ...int    | LengthIncorrect | `len(*elem) in par`     |
-| LenNotIn | []any        | ...int    | LengthIncorrect | `len(*elem) not in par` |
+| LenEq    | []any        | int       | LengthIncorrect | `len(*replace) == par`     |
+| LenNe    | []any        | int       | LengthIncorrect | `len(*replace) != par`     |
+| LenGe    | []any        | int       | LengthIncorrect | `len(*replace) >= par`     |
+| LenLe    | []any        | int       | LengthIncorrect | `len(*replace) <= par`     |
+| LenIn    | []any        | ...int    | LengthIncorrect | `len(*replace) in par`     |
+| LenNotIn | []any        | ...int    | LengthIncorrect | `len(*replace) not in par` |
 
 ### Построитель валидатора
 
