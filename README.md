@@ -17,23 +17,23 @@ package main
 import (
 	"fmt"
 
-	name "github.com/eandr-67/validator"
+	v "github.com/eandr-67/validator"
 	o "github.com/eandr-67/validator/object"
 )
 
 // Создание валидатора
-var VL = o.Obj(name.NotNull, o.Required("aaa"), o.Default("bbb", "12345")).
-	Add("aaa", name.Int(name.Null, name.Gt[int64](25), name.Le[int64](50))).
-	Add("bbb", name.String(name.NotNull, name.Regex("^\\d{5}$"))).
+var VL = o.Obj(v.NotNull, o.Required("aaa"), o.Default("bbb", "12345")).
+	Add("aaa", v.Int(v.Null, v.Gt[int64](25), v.Le[int64](50))).
+	Add("bbb", v.String(v.NotNull, v.Regex("^\\d{5}$"))).
 	Validator()
 
 func main() { // Примеры использования
 	res, err := VL.Do(nil)
-	fmt.Printf("%#name\n%#name\n\n", res, err)
+	fmt.Printf("%#v\n%#v\n\n", res, err)
 	res, err = VL.Do(map[string]any{})
-	fmt.Printf("%#name\n%#name\n\n", res, err)
+	fmt.Printf("%#v\n%#v\n\n", res, err)
 	res, err = VL.Do(map[string]any{"aaa": 10.0, "bbb": "98765"})
-	fmt.Printf("%#name\n%#name\n\n", res, err)
+	fmt.Printf("%#v\n%#v\n\n", res, err)
 }
 
 ```
@@ -285,9 +285,9 @@ func (b *Build[T]) Append(before ...Action[T]) *Build[T]
 Так что нижеперечисленные варианты создания валидатора с двумя действиями эквивалентны:
 
 ```go
-vl = func name.String(name.NotNull, LenEq(5)).Validator()
-vl = func name.String().Append(name.NotNull, LenEq(5)).Validator()
-vl = func name.String(name.NotNull).Append(LenEq(5)).Validator()
+vl = func validator.String(validator.NotNull, LenEq(5)).Validator()
+vl = func validator.String().Append(validator.NotNull, LenEq(5)).Validator()
+vl = func validator.String(validator.NotNull).Append(LenEq(5)).Validator()
 ```
 
 ## Подпакет `validator/time`
