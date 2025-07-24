@@ -1,93 +1,73 @@
 package array
 
 import (
-	"errors"
 	"slices"
 
 	"github.com/eandr-67/errs"
 	"github.com/eandr-67/validator"
 )
 
-// LenEq проверяет, что длина массива больше или равна заданной.
-func LenEq(value int) validator.Action[[]any] {
-	if value < 0 {
-		panic(errors.New("the value must be not less than 0"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) == value {
-			return val, true
+func LenEq(lng int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if len(*value) == lng {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }
 
-// LenNe проверяет, что длина массива меньше или равна заданной.
-func LenNe(value int) validator.Action[[]any] {
-	if value < 0 {
-		panic(errors.New("the value must be not less than 0"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) != value {
-			return val, true
+// LenNe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения равна lng.
+func LenNe(lng int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if len(*value) != lng {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }
 
-// LenGe проверяет, что длина массива больше или равна заданной.
-func LenGe(value int) validator.Action[[]any] {
-	if value < 0 {
-		panic(errors.New("the value must be not less than 0"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) >= value {
-			return val, true
+// LenGe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения меньше lng.
+func LenGe(lng int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if len(*value) >= lng {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }
 
-// LenLe проверяет, что длина массива меньше или равна заданной.
-func LenLe(value int) validator.Action[[]any] {
-	if value < 0 {
-		panic(errors.New("the value must be not less than 0"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if len(*val) <= value {
-			return val, true
+// LenLe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения больше lng.
+func LenLe(lng int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if len(*value) <= lng {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }
 
-// LenIn проверяет, что длина массива входит в заданный список.
-func LenIn(values ...int) validator.Action[[]any] {
-	if len(values) == 0 {
-		panic(errors.New("must have at least one value"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if slices.Contains(values, len(*val)) {
-			return val, true
+// LenIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения не входит в набор lngs.
+func LenIn(lngs ...int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if slices.Contains(lngs, len(*value)) {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }
 
-// LenNotIn проверяет, что длина массива не входит в заданный список.
-func LenNotIn(values ...int) validator.Action[[]any] {
-	if len(values) == 0 {
-		panic(errors.New("must have at least one value"))
-	}
-	return func(val *[]any, key string, err *errs.Errors) (*[]any, bool) {
-		if !slices.Contains(values, len(*val)) {
-			return val, true
+// LenNotIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения входит в набор lngs.
+func LenNotIn(lngs ...int) validator.Action[[]any] {
+	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
+		if !slices.Contains(lngs, len(*value)) {
+			return value, true
 		}
-		err.Add(key, validator.ErrMsg[validator.CodeLengthIncorrect])
-		return nil, false
+		err.Add("", validator.ErrMsg[validator.ErrLengthIncorrect])
+		return value, false
 	}
 }

@@ -1,28 +1,27 @@
 package time
 
 import (
-	"errors"
 	"time"
 
 	"github.com/eandr-67/validator"
 )
 
-// Build реализует построитель валидатора значения time.Time
-type Build struct {
-	validator.Rules[time.Time]
+// builder реализует построитель валидатора значения time.Time
+type builder struct {
+	actions []validator.Action[time.Time]
 	formats []string
 }
 
-// Validator создаёт валидатор time.Time
-func (b *Build) Validator() validator.Validator {
+// Compile создаёт валидатор time.Time
+func (b *builder) Compile() validator.Validator {
 	if len(b.formats) == 0 {
-		panic(errors.New("formats cannot be empty"))
+		panic("formats cannot be empty")
 	}
-	return validator.NewSimple[time.Time](convertTime(b.formats), b.Rules)
+	return validator.NewValidator(timeConverter(b.formats), b.actions...)
 }
 
-// Append добавляет действия в набор действий построителя
-func (b *Build) Append(rules ...validator.Action[time.Time]) *Build {
-	b.Rules.Append(rules...)
+// Add добавляет действия в набор действий построителя
+func (b *builder) Add(actions ...validator.Action[time.Time]) *builder {
+	b.actions = append(b.actions, actions...)
 	return b
 }
