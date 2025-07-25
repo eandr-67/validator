@@ -6,6 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// uuidConverter преобразователь, получающий any и возвращающий *uuid.UUID.
+// Преобразование производится в 2 этапа: сначала any преобразуется в string, а потом эта строка декодируется в
+// uuid.UUID.
 func uuidConverter(raw any, err *errs.Errors) *uuid.UUID {
 	var e error
 	var res uuid.UUID

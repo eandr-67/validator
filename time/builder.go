@@ -6,7 +6,7 @@ import (
 	"github.com/eandr-67/validator"
 )
 
-// builder реализует построитель валидатора значения time.Time
+// builder реализация построителя валидатора значения time.Time
 type builder struct {
 	actions []validator.Action[time.Time]
 	formats []string

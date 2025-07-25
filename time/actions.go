@@ -8,82 +8,90 @@ import (
 	"github.com/eandr-67/validator"
 )
 
-func Eq(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if elem.Equal(value) {
-			return elem, true
+// Eq генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение не равно cmp.
+func Eq(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if value.Equal(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func Ne(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if !elem.Equal(value) {
-			return elem, true
+// Ne генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение равно cmp.
+func Ne(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if !value.Equal(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func In(values ...time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if slices.ContainsFunc(values, elem.Equal) {
-			return elem, true
+// In генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение не входит в набор cmps.
+func In(cmps ...time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if slices.ContainsFunc(cmps, value.Equal) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func NotIn(values ...time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if !slices.ContainsFunc(values, elem.Equal) {
-			return elem, true
+// NotIn генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение входит в набор cmps.
+func NotIn(cmps ...time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if !slices.ContainsFunc(cmps, value.Equal) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func Gt(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if elem.After(value) {
-			return elem, true
+// Gt генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение не больше cmp.
+func Gt(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if value.After(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func Ge(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if !elem.Before(value) {
-			return elem, true
+// Ge генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение меньше cmp.
+func Ge(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if !value.Before(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func Lt(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if elem.Before(value) {
-			return elem, true
+// Lt генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение не меньше cmp.
+func Lt(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if value.Before(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }
 
-func Le(value time.Time) validator.Action[time.Time] {
-	return func(elem *time.Time, err *errs.Errors) (*time.Time, bool) {
-		if !elem.After(value) {
-			return elem, true
+// Le генератор действия, регистрирующего ошибку ErrValueIncorrect, если значение больше cmp.
+func Le(cmp time.Time) validator.Action[time.Time] {
+	return func(value *time.Time, err *errs.Errors) (*time.Time, bool) {
+		if !value.After(cmp) {
+			return value, true
 		}
 		err.Add("", validator.ErrMsg[validator.ErrValueIncorrect])
-		return elem, false
+		return value, false
 	}
 }

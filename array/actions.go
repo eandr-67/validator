@@ -7,6 +7,7 @@ import (
 	"github.com/eandr-67/validator"
 )
 
+// LenEq генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения не равна lng.
 func LenEq(lng int) validator.Action[[]any] {
 	return func(value *[]any, err *errs.Errors) (*[]any, bool) {
 		if len(*value) == lng {

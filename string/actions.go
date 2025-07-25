@@ -10,7 +10,7 @@ import (
 )
 
 // Regex генератор действия, регистрирующего ошибку ErrFormatIncorrect,
-// если значение не соответствует шаблону регулярки pattern.
+// если значение не соответствует шаблону регулярного выражения pattern.
 func Regex(pattern string) validator.Action[string] {
 	temp := regexp.MustCompile(pattern)
 	return func(value *string, err *errs.Errors) (*string, bool) {
@@ -23,7 +23,7 @@ func Regex(pattern string) validator.Action[string] {
 }
 
 // NotRegex генератор действия, регистрирующего ошибку ErrFormatIncorrect,
-// если значение соответствует шаблону регулярки pattern.
+// если значение соответствует шаблону регулярного выражения pattern.
 func NotRegex(pattern string) validator.Action[string] {
 	temp := regexp.MustCompile(pattern)
 	return func(value *string, err *errs.Errors) (*string, bool) {
@@ -35,7 +35,7 @@ func NotRegex(pattern string) validator.Action[string] {
 	}
 }
 
-// LenEq генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения не равна lng.
+// LenEq генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки не равна lng.
 func LenEq(lng int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if utf8.RuneCountInString(*value) == lng {
@@ -46,7 +46,7 @@ func LenEq(lng int) validator.Action[string] {
 	}
 }
 
-// LenNe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения равна lng.
+// LenNe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки равна lng.
 func LenNe(lng int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if utf8.RuneCountInString(*value) != lng {
@@ -57,7 +57,7 @@ func LenNe(lng int) validator.Action[string] {
 	}
 }
 
-// LenGe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения меньше lng.
+// LenGe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки в рунах меньше lng.
 func LenGe(lng int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if utf8.RuneCountInString(*value) >= lng {
@@ -68,7 +68,7 @@ func LenGe(lng int) validator.Action[string] {
 	}
 }
 
-// LenLe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения больше lng.
+// LenLe генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки в рунах больше lng.
 func LenLe(lng int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if utf8.RuneCountInString(*value) <= lng {
@@ -79,7 +79,7 @@ func LenLe(lng int) validator.Action[string] {
 	}
 }
 
-// LenIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения не входит в набор lngs.
+// LenIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки в рунах не входит в набор lngs.
 func LenIn(lngs ...int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if slices.Contains(lngs, utf8.RuneCountInString(*value)) {
@@ -90,7 +90,7 @@ func LenIn(lngs ...int) validator.Action[string] {
 	}
 }
 
-// LenNotIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина значения входит в набор lngs.
+// LenNotIn генератор действия, регистрирующего ошибку ErrLengthIncorrect, если длина строки в рунах входит в набор lngs.
 func LenNotIn(lngs ...int) validator.Action[string] {
 	return func(value *string, err *errs.Errors) (*string, bool) {
 		if !slices.Contains(lngs, utf8.RuneCountInString(*value)) {
